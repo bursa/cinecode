@@ -21,7 +21,7 @@ A chorus is one run per voice. No style is the default: it follows the film's vo
 Engines
   gemini      GEMINI_API_KEY · model gemini-3.8-flash-tts (or gemini-3.8-flash-lite-tts) · named voices (e.g. Kore,
               Puck, Charon) · delivery in plain words through speech_metadata.style ("warm and curious", "deadpan")
-  elevenlabs  ELEVENLABS_API_KEY · --voice <voice_id> from your voice library · model eleven_v3 (70+ languages,
+  elevenlabs  ELEVENLABS_API_KEY · --voice <voice_id> from your voice library · model eleven_v4 (70+ languages,
               audio tags such as [excited], [laughs], [whispers]) or eleven_multilingual_v2 (steady multilingual
               narration, no tags)
   ema         EMA Lightning (Canberk Aslan, Apache 2.0): free and offline Turkish, no key; one voice, no style, --speed.
@@ -114,7 +114,7 @@ def eleven_request(text, style, model, seed, stability):
             text = "".join(f"[{t}] " for t in tags[:2]) + text   # audio tags: delivery direction, not spoken
         else:
             print(f"   note: ElevenLabs {model} takes no free-text style; '{style[:40]}' is not applied"
-                  + ("" if model in ("eleven_v3", "eleven_v4") else " (eleven_v3 understands tags such as [calm], [excited])"))
+                  + ("" if model in ("eleven_v3", "eleven_v4") else " (eleven_v4 understands tags such as [calm], [excited])"))
     body = {"text": text, "model_id": model,
             "voice_settings": {"stability": stability, "similarity_boost": 0.75, "style": 0.0, "speed": 1.0}}
     if seed is not None:
@@ -222,7 +222,7 @@ def audition(a):
             print(f"{n}. skipped '{cand}': write engine:voice (gemini:Kore, elevenlabs:<voice_id>, ema)")
             continue
         model = "ema-lightning" if engine == "ema" else a.model if a.model and (a.model.startswith("gemini") == (engine == "gemini")) else \
-            ("gemini-3.8-flash-tts" if engine == "gemini" else "eleven_v3")
+            ("gemini-3.8-flash-tts" if engine == "gemini" else "eleven_v4")
         name = "".join(ch if ch.isalnum() or ch in "-_" else "-" for ch in voice)[:24]
         dst = os.path.join(a.out, f"{n}-{engine}-{name}.wav")
         if a.dry_run:
@@ -284,7 +284,7 @@ def main():
     ap.add_argument("--id", default="VO1")
     ap.add_argument("--out", help="the folder for the takes (needed for everything but --install)")
     ap.add_argument("--voice", help="gemini: voice name (default Charon); elevenlabs: voice_id (required)")
-    ap.add_argument("--model", help="gemini-3.8-flash-tts | gemini-3.8-flash-lite-tts | eleven_v3 | eleven_multilingual_v2")
+    ap.add_argument("--model", help="gemini-3.8-flash-tts | gemini-3.8-flash-lite-tts | eleven_v4 | eleven_multilingual_v2")
     ap.add_argument("--style", default="", help='delivery from the sound identity (default: none)')
     ap.add_argument("--seed", type=int, default=7, help="elevenlabs: best-effort repeatable takes")
     ap.add_argument("--stability", type=float, default=0.45, help="elevenlabs: lower = more expressive")
@@ -321,7 +321,7 @@ def main():
     if a.engine == "gemini":
         key_name, model, voice = "GEMINI_API_KEY", a.model or "gemini-3.8-flash-tts", a.voice or "Charon"
     else:
-        key_name, model, voice = "ELEVENLABS_API_KEY", a.model or "eleven_v3", a.voice
+        key_name, model, voice = "ELEVENLABS_API_KEY", a.model or "eleven_v4", a.voice
         if not voice and not a.dry_run:
             sys.exit("elevenlabs needs --voice <voice_id> (from your ElevenLabs voice library)")
     key = keys.get(key_name)

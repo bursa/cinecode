@@ -11,7 +11,8 @@
 
 Where a key is looked up, first match wins: the environment, then the film's own .env (to override one film), then
 the user's key store ~/.cinecode/keys.env (CINECODE_KEYS sets another path). The store is a KEY=value file only its
-owner can read (0600), outside every film folder and repository. Nothing in the kit prints a key or writes it into
+owner can read (0600), outside every film folder and repository. In production setups with a shared key store
+(e.g. /home/yt/kasa/keys.env), set CINECODE_KEYS to that path or symlink ~/.cinecode/keys.env to it. Nothing in the kit prints a key or writes it into
 a film folder. When there is no terminal (a key pasted into the chat), the value can come on stdin:
 printf %s "<key>" | python3 tools/keys.py set GEMINI_API_KEY  (PowerShell: '<key>' | py -3 tools/keys.py set GEMINI_API_KEY;
 then suggest rotating it, since the chat keeps a copy).
